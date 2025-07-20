@@ -4,13 +4,14 @@ const path = require("path");
 require("dotenv").config();
 const port = process.env.PORT;
 
+
 //view engine
-app.set("view engine", "views");
-app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "server", "views"));
 
 //routes
 app.get("/", (req, res) => {
-	res.send("We are on our homepage");
+	res.render("index");
 });
 
 //listen to app on port
