@@ -1,7 +1,7 @@
 const { Client } = require("pg");
 require("dotenv").config();
 
-const client = new client({
+const client = new Client({
 	connectionString: process.env.DATABASE_URL,
 });
 

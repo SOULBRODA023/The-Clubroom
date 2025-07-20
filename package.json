@@ -1,29 +1,29 @@
 {
-  "name": "myclubhouse",
-  "version": "1.0.0",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "app": "nodemon app.js",
-    "seed": "node script/seed.js",
-    "dev": "nodemon app.js && script/seed.js"
-  },
-  "author": "DIEKOLOLAOLUWA",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "dotenv": "^17.2.0",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "express-validator": "^7.2.1",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "pg": "^8.16.3"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
-  }
+	"name": "myclubhouse",
+	"version": "1.0.0",
+	"main": "app.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"app": "nodemon app.js",
+		"seed": "node script/seed.js",
+		"dev": "nodemon script/seed.js &&  app.js "
+	},
+	"author": "DIEKOLOLAOLUWA",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"bcrypt": "^6.0.0",
+		"dotenv": "^17.2.0",
+		"ejs": "^3.1.10",
+		"express": "^5.1.0",
+		"express-validator": "^7.2.1",
+		"passport": "^0.7.0",
+		"passport-local": "^1.0.0",
+		"pg": "^8.16.3"
+	},
+	"devDependencies": {
+		"autoprefixer": "^10.4.21",
+		"postcss": "^8.5.6",
+		"tailwindcss": "^4.1.11"
+	}
 }
