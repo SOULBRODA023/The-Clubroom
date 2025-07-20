@@ -5,10 +5,11 @@ const client = new Client({
 	connectionString: process.env.DATABASE_URL,
 });
 
+
 async function seed() {
-	await client.connect();
-	console.log("seeding...");
+    console.log("starting seeding...");
 	try {
+		await client.connect();
 		await client.query(`
         CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
@@ -38,3 +39,4 @@ async function seed() {
 		await client.end();
 	}
 }
+seed();
