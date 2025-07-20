@@ -6,7 +6,7 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"app": "nodemon app.js",
 		"seed": "node script/seed.js",
-		"dev": "nodemon script/seed.js &&  app.js "
+		"dev": "node script/seed.js && nodemon app.js "
 	},
 	"author": "DIEKOLOLAOLUWA",
 	"license": "ISC",
