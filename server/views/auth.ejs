@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/output.css" />
+		<title>
+			myclubhouse | <%= mode === 'login' ? 'Login' : 'Signup' %>
+		</title>
+	</head>
+	<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+		<section
+			class="flex justify-center max-w-[30rem] w-full bg-white p-8 rounded-xl shadow-md"
+		>
+			<form
+				action="<%= mode === 'login' ? '/login' : '/signup' %>"
+				method="POST"
+				class="w-full"
+			>
+				<header class="mb-6">
+					<h1 class="text-4xl font-bold text-center">
+						<%= mode === 'login' ? 'Welcome Back' : 'Create Account'
+						%>
+					</h1>
+				</header>
+
+				<main>
+					<% if (mode === 'signup') { %>
+					<div class="mb-4">
+						<label for="lastname" class="block mb-2 text-[1rem]"
+							>Last Name</label
+						>
+						<input
+							type="text"
+							name="lastname"
+							id="lastname"
+							class="border rounded-[0.5rem] border-black-700 w-full outlin focus:outline-blue-700 px-2 py-2"
+							required
+							placeholder="Lastname"
+						/>
+					</div>
+					<div class="mb-4">
+						<label for="firstname" class="block mb-2 text-[1rem]"
+							>First Name</label
+						>
+						<input
+							type="text"
+							name="firstname"
+							id="firstname"
+							class="border rounded-[0.5rem] border-black-700 w-full outlin focus:outline-blue-700 px-2 py-2"
+							required
+							placeholder="Firstname"
+						/>
+					</div>
+					<% } %>
+
+					<div class="mb-4">
+						<label for="email" class="block mb-2 text-[1rem]"
+							>Email</label
+						>
+						<input
+							type="email"
+							name="email"
+							id="email"
+							class="border rounded-[0.5rem] border-black-700 w-full outlin focus:outline-blue-700 px-2 py-2"
+							required
+							placeholder="Email"
+						/>
+					</div>
+
+					<div class="mb-4">
+						<label for="password" class="block mb-2 text-[1rem]"
+							>Password</label
+						>
+						<input
+							type="password"
+							name="password"
+							id="password"
+							class="border rounded-[0.5rem] border-black-700 w-full outlin focus:outline-blue-700 px-2 py-2"
+							required
+							placeholder="Password"
+						/>
+					</div>
+
+					<% if (mode === 'signup') { %>
+					<div class="mb-4">
+						<label for="confirm" class="block mb-2 text-[1rem]"
+							>Confirm Password</label
+						>
+						<input
+							type="password"
+							name="confirm"
+							id="confirm"
+							class="border rounded-[0.5rem] border-black-700 w-full outlin focus:outline-blue-700 px-2 py-2"
+							required
+							placeholder="Confirm password"
+						/>
+					</div>
+					<% } %>
+
+					<button
+						type="submit"
+						class="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 mt-4"
+					>
+						<%= mode === 'login' ? 'Log In' : 'Sign Up' %>
+					</button>
+				</main>
+
+				<div class="text-center mt-4">
+					<% if (mode === 'login') { %>
+					<p>
+						Don't have an account?
+						<a href="/signup" class="text-blue-600 underline"
+							>Sign up</a
+						>
+					</p>
+					<% } else { %>
+					<p>
+						Already have an account?
+						<a href="/login" class="text-blue-600 underline"
+							>Log in</a
+						>
+					</p>
+					<% } %>
+				</div>
+			</form>
+		</section>
+
+		<style></style>
+	</body>
+</html>

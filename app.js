@@ -2,19 +2,26 @@ const express = require("express");
 const app = express();
 const path = require("path");
 require("dotenv").config();
-const port = process.env.PORT;
 
+const signupRoute = require("./server/routes/signup");
+const loginRoute = require("./server/routes/login");
+const indexRoute = require("./server/routes/index");
 
-//view engine
+const port = process.env.PORT || 3000;
+
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
+
+// View engine setup
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "server", "views"));
 
-//routes
-app.get("/", (req, res) => {
-	res.render("index");
-});
+// Use route files
+app.use("/", indexRoute); // your homepage
+app.use("/", signupRoute); // handles GET /signup
+app.use("/", loginRoute); // handles GET /login
 
-//listen to app on port
+// Start server
 app.listen(port, () => {
-	console.log(`listening to your app on ${port}`);
+	console.log(`Listening to your app on http://localhost:${port}`);
 });

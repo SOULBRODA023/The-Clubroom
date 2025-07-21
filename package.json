@@ -6,12 +6,15 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"app": "nodemon app.js",
 		"seed": "node script/seed.js",
-		"dev": "node script/seed.js && nodemon app.js "
+		"dev": "node script/seed.js && nodemon app.js ",
+		"build:css": "tailwindcss -i ./public/input.css -o ./public/output.css --watch"
 	},
 	"author": "DIEKOLOLAOLUWA",
 	"license": "ISC",
 	"description": "",
 	"dependencies": {
+		"@tailwindcss/cli": "^4.1.11",
+		"@tailwindcss/postcss": "^4.1.11",
 		"bcrypt": "^6.0.0",
 		"dotenv": "^17.2.0",
 		"ejs": "^3.1.10",
