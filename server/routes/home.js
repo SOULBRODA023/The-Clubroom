@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/home", (req, res) => {
 	console.log("Redirected to /");
-	res.render("index", { user: req.user });
+	res.render("home", { user: req.user });
 });
 
 module.exports = router;

@@ -1,12 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const
+const { body } = require("express-validator");
+const {
+	verifyDataNotExist,
+	validateSignup,
+} = require("../controller/authcontroller");
 
 router.get("/signup", (req, res) => {
-	res.render("auth", { mode: "signup" });
+	res.render("auth", {
+		mode: "signup",
+		errors: [],
+		oldInput: {},
+	});
 });
-router.post("/signup", (req, res) => {
-    const { lastname, firstname, email, password, confirm } = req.body;
-})
+
+router.post("/signup", validateSignup, verifyDataNotExist);
 
 module.exports = router;
