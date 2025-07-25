@@ -1,31 +1,42 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const { validateSignup } = require("../controller/authcontroller");
+const { validateLogin } = require("../controller/authcontroller");
+const { validationResult } = require("express-validator");
 
 // GET /login
-
 router.get("/login", (req, res) => {
+	const errorMessages = req.flash("error");
+	const errors = errorMessages.map((msg) => ({ msg }));
+	const flashSuccess = req.flash("success");
+
 	res.render("auth", {
 		mode: "login",
-		errors: [],
+		errors,
 		oldInput: {},
+		success: flashSuccess.length > 0 ? flashSuccess[0] : null,
 	});
 });
 
-
+// POST /login/password
 router.post(
-	"/login",validateSignup,
-	// Optional: A middleware to log login attempts before Passport processes them
+	"/login",
+	validateLogin,
 	(req, res, next) => {
-		console.log("Login attempted for username:", req.body.email);
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.render("auth", {
+				mode: "login",
+				errors: errors.array(),
+				oldInput: req.body,
+			});
+		}
 		next();
 	},
-	// Passport.js authentication middleware
 	passport.authenticate("local", {
-		successRedirect: "/home", // Redirect to the index page on successful login
-		failureRedirect: "/login", // Redirect back to the login page on failed login
-		failureFlash: false, // Set to true if you want to use connect-flash for error messages
+		successRedirect: "/home",
+		failureRedirect: "/login",
+		failureFlash: true,
 	})
 );
 

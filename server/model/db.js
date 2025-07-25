@@ -7,6 +7,7 @@ async function fillDatabase(lastname, firstname, email, password) {
 	const values = [lastname, firstname, email, password];
 	await pool.query(myQuery, values);
 }
+
 async function checkExistingUser(email) {
 	const existingUser = await pool.query(
 		"SELECT id FROM users WHERE email = $1",

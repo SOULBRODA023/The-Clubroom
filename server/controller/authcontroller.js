@@ -8,15 +8,18 @@ const verifyDataNotExist = async (req, res) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(422).render("auth", {
-			mode: "signup",
+			mode: "signup", // 👈 MAKE SURE THIS IS PRESENT
 			errors: errors.array(),
-			oldInput: req.body, 
+			oldInput: req.body,
+			success: null,
 		});
 	}
+
 	const { lastname, firstname, email, password } = req.body;
 	try {
 		const hashedPassword = await bcrypt.hash(password, 12);
 		await fillDatabase(lastname, firstname, email, hashedPassword);
+		req.flash("success", "Signup successful. Please kindly login.");
 		res.redirect("/login");
 	} catch (error) {
 		console.error("Database error:", error);
@@ -24,6 +27,23 @@ const verifyDataNotExist = async (req, res) => {
 	}
 };
 
+const checkSecret = (req, res) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return res.status(422).render("passcode", {
+			user: req.user,
+			errors: errors.array(),
+			success: "Access granted! Welcome to the Clubhouse. 🎉",
+		});
+	}
+
+	console.log("Passcode correct. Redirecting to /home");
+
+	// Optional: set full access flag
+	req.session.fullAccess = true;
+
+	res.redirect("/home");
+};
 //validation
 const validateSignup = [
 	body("lastname")
@@ -71,4 +91,32 @@ const validateSignup = [
 		}),
 ];
 
-module.exports = { verifyDataNotExist, validateSignup };
+const validateLogin = [
+	body("email")
+		.notEmpty()
+		.withMessage("Email is required")
+		.isEmail()
+		.withMessage("Enter a valid email"),
+
+	body("password").notEmpty().withMessage("Password is required"),
+];
+
+const validateSecret = [
+	body("secret")
+		.notEmpty()
+		.withMessage("Secret passcode has to be filled to proceed")
+		.custom((value) => {
+			if (value !== process.env.SECRET_PASSCODE) {
+				throw new Error("Wrong passcode");
+			}
+			return true;
+		}),
+];
+
+module.exports = {
+	verifyDataNotExist,
+	validateSignup,
+	validateLogin,
+	validateSecret,
+	checkSecret,
+};

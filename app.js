@@ -5,10 +5,12 @@ const session = require("express-session");
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 require("dotenv").config();
-const pool = require('./server/model/pool')
+const pool = require('./server/model/pool');
+const flash = require("connect-flash");
+const bcrypt = require("bcryptjs")
 
 // --- Middlewares BEFORE routes ---
-
+app.use(flash());
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,10 +42,17 @@ passport.use(
 					[email]
 				);
 				const user = rows[0];
-				if (!user)
+
+				if (!user) {
 					return done(null, false, { message: "Incorrect email" });
-				if (user.password !== password)
+				}
+
+			
+				const match = await bcrypt.compare(password, user.password);
+				if (!match) {
 					return done(null, false, { message: "Incorrect password" });
+				}
+
 				return done(null, user);
 			} catch (err) {
 				return done(err);
@@ -51,7 +60,6 @@ passport.use(
 		}
 	)
 );
-
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
 	try {
@@ -68,10 +76,14 @@ passport.deserializeUser(async (id, done) => {
 const signupRoute = require("./server/routes/Signup");
 const loginRoute = require("./server/routes/login");
 const indexRoute = require("./server/routes/index");
+const passcodeRoute = require("./server/routes/passcode");
+
 
 app.use("/", indexRoute);
 app.use("/", signupRoute);
 app.use("/", loginRoute);
+app.use("/", passcodeRoute);
+
 
 // Start server
 const port = process.env.PORT || 3000;
