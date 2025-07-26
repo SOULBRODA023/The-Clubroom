@@ -29,12 +29,13 @@ router.post(
 				mode: "login",
 				errors: errors.array(),
 				oldInput: req.body,
+				success: "login successful",
 			});
 		}
 		next();
 	},
 	passport.authenticate("local", {
-		successRedirect: "/home",
+		successRedirect: "/passcode",
 		failureRedirect: "/login",
 		failureFlash: true,
 	})

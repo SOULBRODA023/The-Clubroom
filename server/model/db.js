@@ -19,4 +19,6 @@ async function checkExistingUser(email) {
 	console.log("User created successfully:", existingUser.rows[0]);
 	return existingUser.rows[0];
 }
+
+
 module.exports = { fillDatabase, checkExistingUser };

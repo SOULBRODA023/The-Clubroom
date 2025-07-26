@@ -1,5 +1,5 @@
 const { body } = require("express-validator");
-const { fillDatabase, checkExistingUser } = require("../model/db"); // Assuming these exist
+const { fillDatabase, checkExistingUser } = require("../model/db");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 
@@ -8,7 +8,7 @@ const verifyDataNotExist = async (req, res) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(422).render("auth", {
-			mode: "signup", // 👈 MAKE SURE THIS IS PRESENT
+			mode: "signup",
 			errors: errors.array(),
 			oldInput: req.body,
 			success: null,
@@ -27,23 +27,6 @@ const verifyDataNotExist = async (req, res) => {
 	}
 };
 
-const checkSecret = (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(422).render("passcode", {
-			user: req.user,
-			errors: errors.array(),
-			success: "Access granted! Welcome to the Clubhouse. 🎉",
-		});
-	}
-
-	console.log("Passcode correct. Redirecting to /home");
-
-	// Optional: set full access flag
-	req.session.fullAccess = true;
-
-	res.redirect("/home");
-};
 //validation
 const validateSignup = [
 	body("lastname")
@@ -101,22 +84,28 @@ const validateLogin = [
 	body("password").notEmpty().withMessage("Password is required"),
 ];
 
-const validateSecret = [
-	body("secret")
-		.notEmpty()
-		.withMessage("Secret passcode has to be filled to proceed")
-		.custom((value) => {
-			if (value !== process.env.SECRET_PASSCODE) {
-				throw new Error("Wrong passcode");
-			}
-			return true;
-		}),
-];
+function isAuthenticated(req, res, next) {
+	if (req.isAuthenticated && req.isAuthenticated()) {
+		return next();
+	}
+	res.redirect("/login"); 
+}
+
+function redirectIfMember(req, res, next) {
+	console.log("Checking membership for user:", req.user);
+	if (req.user && req.user.is_member === true) {
+		console.log("User is a member. Redirecting...");
+		return res.redirect("/home");
+	}
+	console.log("User not a member. Proceeding to passcode...");
+	next();
+}
+
 
 module.exports = {
 	verifyDataNotExist,
 	validateSignup,
 	validateLogin,
-	validateSecret,
-	checkSecret,
+	isAuthenticated,
+	redirectIfMember,
 };

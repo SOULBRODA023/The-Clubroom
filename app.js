@@ -77,12 +77,14 @@ const signupRoute = require("./server/routes/Signup");
 const loginRoute = require("./server/routes/login");
 const indexRoute = require("./server/routes/index");
 const passcodeRoute = require("./server/routes/passcode");
+const homeRoute = require("./server/routes/home")
 
 
 app.use("/", indexRoute);
 app.use("/", signupRoute);
 app.use("/", loginRoute);
 app.use("/", passcodeRoute);
+app.use("/", homeRoute);
 
 
 // Start server
