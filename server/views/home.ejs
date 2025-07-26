@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>myclubhouse | Home</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="bg-black text-white min-h-screen">
+		<main class="max-w-4xl mx-auto px-4 py-8">
+
+			<% if (messages && messages.length > 0) { %>
+				<% messages.forEach((msg) => { %>
+					<section class="bg-gray-900 rounded-lg p-6 mb-6 border border-gray-800">
+						<section class="flex flex-col space-y-2 mb-8 pb-6 border-b border-gray-800">
+							<h3 class="text-2xl font-semibold text-white">
+								<%= user.firstname %> <%= user.lastname %>
+							</h3>
+							<p class="text-sm text-gray-400">
+								<%= new Date(msg.created_at).toLocaleString() %>
+							</p>
+						</section>
+						<h4 class="text-lg font-semibold text-white mb-2"><%= msg.title %></h4>
+						<p class="text-gray-100 leading-relaxed text-base"><%= msg.text %></p>
+					</section>
+				<% }) %>
+			<% } else { %>
+				<p class="text-gray-400 text-center mb-8">
+					You haven’t posted any messages yet.
+				</p>
+			<% } %>
+
+			<section class="mt-10">
+				<a
+					href="/home/create-message"
+					class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 4v16m8-8H4"
+						/>
+					</svg>
+					<span>Create New Message</span>
+				</a>
+			</section>
+		</main>
+	</body>
+</html>
