@@ -7,7 +7,8 @@ const localStrategy = require("passport-local").Strategy;
 require("dotenv").config();
 const pool = require('./server/model/pool');
 const flash = require("connect-flash");
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
+const pgSession = require("connect-pg-simple")(session);
 
 // --- Middlewares BEFORE routes ---
 app.use(flash());
@@ -18,14 +19,24 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "server", "views"));
 
-// Session middleware FIRST
+
+
+
 app.use(
 	session({
-		secret: "cats",
+		store: new pgSession({
+			pool: pool, 
+			tableName: "user_sessions", 
+		}),
+		secret: process.env.SESSION_SECRET,
 		resave: false,
 		saveUninitialized: false,
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 24, // 1 day
+		},
 	})
 );
+
 
 // Passport middlewares NEXT
 app.use(passport.initialize());
