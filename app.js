@@ -84,7 +84,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // --- Routes LAST ---
-const signupRoute = require("./server/routes/Signup");
+const signupRoute = require("./server/routes/signup");
 const loginRoute = require("./server/routes/login");
 const indexRoute = require("./server/routes/index");
 const passcodeRoute = require("./server/routes/passcode");
