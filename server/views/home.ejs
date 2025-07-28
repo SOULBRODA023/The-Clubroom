@@ -1,56 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>myclubhouse | Home</title>
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body class="bg-black text-white min-h-screen">
-		<main class="max-w-4xl mx-auto px-4 py-8">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>myclubhouse | Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-100 min-h-screen">
+    <main class="max-w-4xl mx-auto px-4 py-8">
+      <!-- Flash Messages -->
+      <% if (success && success.length > 0) { %>
+      <div class="bg-green-800 border border-green-600 text-green-200 px-4 py-3 rounded-lg mb-4" role="alert">
+        <span class="block sm:inline"><%= success %></span>
+      </div>
+      <% } %>
+      <% if (error && error.length > 0) { %>
+      <div class="bg-red-800 border border-red-600 text-red-200 px-4 py-3 rounded-lg relative mb-4" role="alert">
+        <span class="block sm:inline"><%= error %></span>
+      </div>
+      <% } %>
 
-			<% if (messages && messages.length > 0) { %>
-				<% messages.forEach((msg) => { %>
-					<section class="bg-gray-900 rounded-lg p-6 mb-6 border border-gray-800">
-						<section class="flex flex-col space-y-2 mb-8 pb-6 border-b border-gray-800">
-							<h3 class="text-2xl font-semibold text-white">
-								<%= user.firstname %> <%= user.lastname %>
-							</h3>
-							<p class="text-sm text-gray-400">
-								<%= new Date(msg.created_at).toLocaleString() %>
-							</p>
-						</section>
-						<h4 class="text-lg font-semibold text-white mb-2"><%= msg.title %></h4>
-						<p class="text-gray-100 leading-relaxed text-base"><%= msg.text %></p>
-					</section>
-				<% }) %>
-			<% } else { %>
-				<p class="text-gray-400 text-center mb-8">
-					You haven’t posted any messages yet.
-				</p>
-			<% } %>
+      <!-- "Request Admin Access" button (only visible if not admin) -->
+      <% if (user && !user.is_admin) { %>
+      <section class="mb-8 text-center">
+        <a
+          href="/adminpasscode"
+          class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-[900] rounded-md shadow-sm text-gray-900 bg-amber-500 hover:bg-amber-400 transition-colors"
+        >
+          Request Admin Access
+        </a>
+      </section>
+      <% } %>
 
-			<section class="mt-10">
-				<a
-					href="/home/create-message"
-					class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
-				>
-					<svg
-						class="w-5 h-5"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 4v16m8-8H4"
-						/>
-					</svg>
-					<span>Create New Message</span>
-				</a>
-			</section>
-		</main>
-	</body>
+      <% if (messages && messages.length > 0) { %> <%
+      messages.forEach((msg) => { %>
+      <section
+        class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700 shadow-md"
+      >
+        <section
+          class="flex justify-between items-start mb-6 pb-4 border-b border-gray-700"
+        >
+          <div class="flex flex-col space-y-2">
+            <h3 class="text-2xl font-semibold text-amber-400">
+              <%= msg.firstname %> <%= msg.lastname %>
+            </h3>
+            <p class="text-sm text-gray-400">
+              <%= new Date(msg.created_at).toLocaleString() %>
+            </p>
+          </div>
+          <!-- Trash Can Icon for Delete (only visible to admins) -->
+          <% if (user && user.is_admin) { %>
+          <form action="/messages/<%= msg.id %>?_method=DELETE" method="POST" class="inline-block ml-2">
+            <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-700" aria-label="Delete message">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            </button>
+          </form>
+          <% } %>
+        </section>
+        <h4 class="text-lg font-semibold text-gray-200 mb-2">
+          <%= msg.title %>
+        </h4>
+        <p class="text-gray-300 leading-relaxed text-base">
+          <%= msg.text %>
+        </p>
+      </section>
+      <% }) %> <% } else { %>
+      <p class="text-gray-400 text-center mb-8">
+        You haven’t posted any messages yet.
+      </p>
+      <% } %>
+      <section class="mt-10">
+        <a
+          href="/home/create-message"
+          class="w-full bg-amber-500 text-gray-900 font-semibold py-4 px-6 rounded-lg transition-colors duration-200 hover:bg-amber-400 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          <span>Create New Message</span>
+        </a>
+      </section>
+    </main>
+  </body>
 </html>
