@@ -5,13 +5,12 @@ const session = require("express-session");
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 
-
-const pool = require("./server/model/pool"); 
+const pool = require("./server/model/pool");
 const flash = require("connect-flash");
 const bcrypt = require("bcryptjs");
 const pgSession = require("connect-pg-simple")(session);
 
-const seedDatabase = require("./script/seed"); 
+const { seed } = require("./script/seed");
 
 // --- Middlewares BEFORE routes ---
 app.use(flash());
@@ -100,7 +99,7 @@ app.use("/", homeRoute);
 const port = process.env.PORT || 3000;
 
 async function startServer() {
-	await seedDatabase(); 
+	await seed();
 
 	try {
 		const client = await pool.connect();
@@ -109,7 +108,6 @@ async function startServer() {
 		console.log("Database connected successfully at:", result.rows[0].now);
 	} catch (err) {
 		console.error("Failed to connect to database on startup:", err.stack);
-	
 	}
 	app.listen(port, () => {
 		console.log(`Listening on http://localhost:${port}`);
