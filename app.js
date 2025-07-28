@@ -4,12 +4,14 @@ const path = require("path");
 const session = require("express-session");
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
-require("dotenv").config();
-const pool = require('./server/model/pool');
+
+
+const pool = require("./server/model/pool"); 
 const flash = require("connect-flash");
 const bcrypt = require("bcryptjs");
 const pgSession = require("connect-pg-simple")(session);
 
+const seedDatabase = require("./script/seed"); 
 
 // --- Middlewares BEFORE routes ---
 app.use(flash());
@@ -20,24 +22,22 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "server", "views"));
 
-
-
-
 app.use(
 	session({
 		store: new pgSession({
-			pool: pool, 
-			tableName: "user_sessions", 
+			pool: pool,
+			tableName: "user_sessions",
 		}),
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET, // IMPORTANT: Set this as an environment variable on Render!
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
 			maxAge: 1000 * 60 * 60 * 24, // 1 day
+			secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+			httpOnly: true,
 		},
 	})
 );
-
 
 // Passport middlewares NEXT
 app.use(passport.initialize());
@@ -54,17 +54,14 @@ passport.use(
 					[email]
 				);
 				const user = rows[0];
-
 				if (!user) {
 					return done(null, false, { message: "Incorrect email" });
 				}
 
-			
 				const match = await bcrypt.compare(password, user.password);
 				if (!match) {
 					return done(null, false, { message: "Incorrect password" });
 				}
-
 				return done(null, user);
 			} catch (err) {
 				return done(err);
@@ -72,7 +69,9 @@ passport.use(
 		}
 	)
 );
+
 passport.serializeUser((user, done) => done(null, user.id));
+
 passport.deserializeUser(async (id, done) => {
 	try {
 		const { rows } = await pool.query("SELECT * FROM users WHERE id = $1", [
@@ -89,8 +88,7 @@ const signupRoute = require("./server/routes/Signup");
 const loginRoute = require("./server/routes/login");
 const indexRoute = require("./server/routes/index");
 const passcodeRoute = require("./server/routes/passcode");
-const homeRoute = require("./server/routes/home")
-
+const homeRoute = require("./server/routes/home");
 
 app.use("/", indexRoute);
 app.use("/", signupRoute);
@@ -98,9 +96,23 @@ app.use("/", loginRoute);
 app.use("/", passcodeRoute);
 app.use("/", homeRoute);
 
-
-// Start server
+// Start server function
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-	console.log(`Listening on http://localhost:${port}`);
-});
+
+async function startServer() {
+	await seedDatabase(); 
+
+	try {
+		const client = await pool.connect();
+		const result = await client.query("SELECT NOW()");
+		client.release();
+		console.log("Database connected successfully at:", result.rows[0].now);
+	} catch (err) {
+		console.error("Failed to connect to database on startup:", err.stack);
+	
+	}
+	app.listen(port, () => {
+		console.log(`Listening on http://localhost:${port}`);
+	});
+}
+startServer();
