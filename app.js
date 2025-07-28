@@ -10,6 +10,7 @@ const flash = require("connect-flash");
 const bcrypt = require("bcryptjs");
 const pgSession = require("connect-pg-simple")(session);
 
+
 // --- Middlewares BEFORE routes ---
 app.use(flash());
 app.use(express.static("public"));

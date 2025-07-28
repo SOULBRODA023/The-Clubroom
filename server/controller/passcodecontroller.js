@@ -47,7 +47,7 @@ const checkSecret = async (req, res) => {
 			userId,
 		]);
 
-		req.user.ismember = true;
+		req.user.is_member = true;
 
 		res.redirect("/home");
 		console.log("Passcode correct. Redirecting to /home");
@@ -57,8 +57,42 @@ const checkSecret = async (req, res) => {
 	}
 };
 
+
+const isRiddle = (req, res) => {
+	
+	const myAnswer = req.body.riddle;
+	if (!myAnswer) {
+		return res.render("riddle", {
+			mode: "form",
+			message: "Please provide an answer.",
+		});
+	}
+
+	const reformatAnswer = myAnswer.toLowerCase().trim();
+
+	if (reformatAnswer === process.env.RIDDLE_ANSWER.toLowerCase()) {
+		console.log("Correct answer:", reformatAnswer);
+		res.render("riddle", {
+			mode: "success",
+			message: "Correct! The code is: TDETOTHEWORLD",
+		});
+	} else {
+		console.log("Wrong answer");
+		// Render error mode
+		res.render("riddle", {
+			mode: "form",
+			message: "That's not correct. Try again!",
+		});
+	}
+
+
+
+};
+
+
 module.exports = {
 	validateSecret,
 	checkSecret,
-	isUserMember
+	isUserMember, 
+	isRiddle
 };
