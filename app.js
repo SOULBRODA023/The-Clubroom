@@ -10,7 +10,7 @@ const flash = require("connect-flash");
 const bcrypt = require("bcryptjs");
 const pgSession = require("connect-pg-simple")(session);
 
-const { seed } = require("./script/seed");
+const seed = require("./script/seed");
 
 // --- Middlewares BEFORE routes ---
 app.use(flash());
