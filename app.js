@@ -44,25 +44,30 @@ app.use(passport.session());
 
 // --- THEN configure passport strategy ---
 passport.use(
-	new localStrategy(
+	new LocalStrategy(
 		{ usernameField: "email" },
 		async (email, password, done) => {
 			try {
-				const { rows } = await pool.query(
+				const result = await pool.query(
 					"SELECT * FROM users WHERE email = $1",
 					[email]
 				);
-				const user = rows[0];
-				if (!user) {
+				if (result.rows.length === 0) {
+					console.log("User not found");
 					return done(null, false, { message: "Incorrect email" });
 				}
 
+				const user = result.rows[0];
 				const match = await bcrypt.compare(password, user.password);
 				if (!match) {
+					console.log("Incorrect password");
 					return done(null, false, { message: "Incorrect password" });
 				}
+
+				console.log("User authenticated successfully");
 				return done(null, user);
 			} catch (err) {
+				console.error(err);
 				return done(err);
 			}
 		}
@@ -70,13 +75,12 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => done(null, user.id));
-
 passport.deserializeUser(async (id, done) => {
 	try {
-		const { rows } = await pool.query("SELECT * FROM users WHERE id = $1", [
+		const result = await pool.query("SELECT * FROM users WHERE id = $1", [
 			id,
 		]);
-		done(null, rows[0]);
+		done(null, result.rows[0]);
 	} catch (err) {
 		done(err);
 	}

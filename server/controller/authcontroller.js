@@ -1,106 +1,131 @@
-const { body } = require("express-validator");
-const { fillDatabase, checkExistingUser } = require("../model/db");
+const { body, validationResult } = require("express-validator");
+const pool = require("../model/pool");
 const bcrypt = require("bcryptjs");
-const { validationResult } = require("express-validator");
 
-//verify that email doesn't exist in database and let user signup
-const verifyDataNotExist = async (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(422).render("auth", {
-			mode: "signup",
-			errors: errors.array(),
-			oldInput: req.body,
-			success: null,
-		});
-	}
-
-	const { lastname, firstname, email, password } = req.body;
-	try {
-		const hashedPassword = await bcrypt.hash(password, 12);
-		await fillDatabase(lastname, firstname, email, hashedPassword);
-		req.flash("success", "Signup successful. Please kindly login.");
-		res.redirect("/login");
-	} catch (error) {
-		console.error("Database error:", error);
-		res.status(500).send("Something went wrong");
-	}
+const getLogin = (req, res) => {
+	const errorMessages = req.flash("error");
+	const errors = errorMessages.map((msg) => ({ msg }));
+	const successMessages = req.flash("success").map((msg) => ({ msg }));
+	res.render("login", { errors, successMessages });
 };
 
-//validation
-const validateSignup = [
-	body("lastname")
-		.notEmpty()
-		.withMessage("Last name is required")
+const postLogin = [
+	body("email")
 		.trim()
-		.isLength({ min: 2 })
-		.withMessage("Last name must be at least 2 characters"),
-	body("firstname")
 		.notEmpty()
-		.withMessage("First name is required")
+		.withMessage("Email is required")
+		.isEmail()
+		.withMessage("Invalid email")
+		.escape(),
+	body("password")
 		.trim()
-		.isLength({ min: 2 })
-		.withMessage("First name must be at least 2 characters"),
+		.notEmpty()
+		.withMessage("Password is required")
+		.escape(),
+
+	(req, res, next) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const extractedErrors = errors.array();
+			return res.render("login", {
+				errors: extractedErrors,
+				successMessages: [],
+			});
+		}
+		next();
+	},
+];
+
+const getRegister = (req, res) => {
+	res.render("register", { errors: [], successMessages: [] });
+};
+
+const postRegister = [
+	body("username")
+		.notEmpty()
+		.withMessage("Username is required")
+		.trim()
+		.escape(),
 	body("email")
 		.notEmpty()
 		.withMessage("Email is required")
 		.isEmail()
-		.withMessage("Please enter a valid email")
-		.normalizeEmail()
-		.custom(checkExistingUser),
-
+		.withMessage("Invalid email")
+		.trim()
+		.escape(),
 	body("password")
 		.notEmpty()
 		.withMessage("Password is required")
-		.isLength({ min: 8 })
-		.withMessage("Password must be at least 8 characters")
-		.matches(/\d/)
-		.withMessage("Password must contain at least one number")
-		.matches(/[!@#$%^&*]/)
-		.withMessage("Password must contain at least one special character"),
-	body("confirm")
-		.notEmpty()
-		.withMessage("Confirm password is required")
-		.custom((value, { req }) => {
-			if (value !== req.body.password) {
-				throw new Error("Passwords do not match");
+		.isLength({ min: 5 })
+		.withMessage("Password too short")
+		.trim()
+		.escape(),
+
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.render("register", {
+				errors: errors.array(),
+				successMessages: [],
+			});
+		}
+
+		const { username, email, password } = req.body;
+		try {
+			const existingUser = await pool.query(
+				"SELECT * FROM users WHERE email = $1",
+				[email]
+			);
+			if (existingUser.rows.length > 0) {
+				return res.render("register", {
+					errors: [{ msg: "Email already in use" }],
+					successMessages: [],
+				});
 			}
-			return true;
-		}),
+
+			const hashedPassword = await bcrypt.hash(password, 10);
+			await pool.query(
+				"INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+				[username, email, hashedPassword]
+			);
+
+			req.flash(
+				"success",
+				"Account created successfully! Please log in."
+			);
+			res.redirect("/login");
+		} catch (err) {
+			console.error(err);
+			res.render("register", {
+				errors: [{ msg: "Something went wrong" }],
+				successMessages: [],
+			});
+		}
+	},
 ];
 
-const validateLogin = [
-	body("email")
-		.notEmpty()
-		.withMessage("Email is required")
-		.isEmail()
-		.withMessage("Enter a valid email"),
+const logoutUser = (req, res, next) => {
+	req.logout((err) => {
+		if (err) {
+			return next(err);
+		}
+		req.flash("success", "Logged out successfully");
+		res.redirect("/login");
+	});
+};
 
-	body("password").notEmpty().withMessage("Password is required"),
-];
-
-function isAuthenticated(req, res, next) {
-	if (req.isAuthenticated && req.isAuthenticated()) {
+const isAuthenticated = (req, res, next) => {
+	if (req.isAuthenticated()) {
 		return next();
 	}
-	res.redirect("/login"); 
-}
-
-function redirectIfMember(req, res, next) {
-	console.log("Checking membership for user:", req.user);
-	if (req.user && req.user.is_member === true) {
-		console.log("User is a member. Redirecting...");
-		return res.redirect("/home");
-	}
-	console.log("User not a member. Proceeding to passcode...");
-	next();
-}
-
+	res.redirect("/login");
+};
 
 module.exports = {
-	verifyDataNotExist,
-	validateSignup,
-	validateLogin,
+	getLogin,
+	postLogin,
+	getRegister,
+	postRegister,
+	logoutUser,
 	isAuthenticated,
-	redirectIfMember,
 };

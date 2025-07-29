@@ -22,6 +22,11 @@ router.get("/login", (req, res) => {
 router.post(
 	"/login",
 	validateLogin,
+	passport.authenticate("local", {
+		successRedirect: "/passcode",
+		failureRedirect: "/login",
+		failureFlash: true,
+	}),
 	(req, res, next) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -33,12 +38,7 @@ router.post(
 			});
 		}
 		next();
-	},
-	passport.authenticate("local", {
-		successRedirect: "/passcode",
-		failureRedirect: "/login",
-		failureFlash: true,
-	})
+	}
 );
 
 module.exports = router;
