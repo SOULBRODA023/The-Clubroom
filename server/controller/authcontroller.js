@@ -47,13 +47,8 @@ const validateSignup = [
 		.isEmail()
 		.withMessage("Please enter a valid email")
 		.normalizeEmail()
-		.custom(async (value) => {
-			const user = await checkExistingUser(value);
-			if (user) {
-				throw new Error("Email is already in use");
-			}
-			return true;
-		}),
+		.custom(checkExistingUser),
+
 	body("password")
 		.notEmpty()
 		.withMessage("Password is required")
